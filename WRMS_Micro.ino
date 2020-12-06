@@ -9,6 +9,7 @@
 #include <LiquidCrystal.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <EEPROM.h>
 
 #define RST_PIN   5     // Configurable, see typical pin layout above
 #define SS_PIN    53   // Configurable, see typical pin layout above
@@ -65,13 +66,13 @@ void loop() {
   if(Serial1.available()){
     int input = Serial1.parseInt();
   
-    if(input==1){
+    if(input==1){           //If the number 1 is introduced in the Serial Monitor, it will check the internet
       checkInternet();
     }
-    else if(input==2){
+    else if(input==2){     //If the number 2 is introduced in the Serial Monitor, it will reboot the router
       rebootRouter();
     }
-    else if(input==3){
+    else if(input==3){    //If the number 3 is introduced in the Serial Monitor, it will 
       showPassSerial();
     }
     else if(input==4){
@@ -210,6 +211,26 @@ void checkUser(){
 }
 
 void changePass(){
+  String nPass;
+  char password[13]; //Strings of char for the password. thats stores in eeprom
+  char password2[13] = {"0"};     //Reads the password without it the password getting erased. 0 is the address
+
+  Serial1.print("Enter the new password: ");
+  while(!Serial1.available()){}
+  nPass = Serial1.readString();
+  nPass.toCharArray(password, 13);
+
+  for(int i=0 ; i<12 ;i++ ){    
+    EEPROM.write(i,password[i]);
+  }
+
+  for(int i=0 ; i<12 ;i++ ){
+    password[i] = EEPROM.read(i);
+  }
+  
+  Serial1.println("");
+  Serial1.print("Password: ");
+  Serial1.println(password);
   
 }
 
@@ -254,6 +275,48 @@ void checkInternet(){
 }
 
 void checkLatency(){
+  
+ String response;
+//  R_LED = 30;
+//  Y_LED = 31;
+//  G_LED = 32;
+  int velocity;
+  Serial2.println("AT+PING=\"www.google.com\"");
+  response = Serial2.readString();
+  delay(100);
+  int pingPos = response.indexOf("+",3)+1;
+
+  int ping = atoi(&response[pingPos]);
+  Serial.println(ping);
+
+  if(ping > 0 && ping <= 100){
+    Serial.println("Good Internet");
+//    digitalWrite(R_LED,LOW);
+//    digitalWrite(Y_LED,LOW);
+//    digitalWrite(G_LED,HIGH);
+    }
+
+   else if(ping >= 101 && ping <= 200){
+    Serial.println("Potential Problems");
+//    digitalWrite(R_LED,LOW);
+//    digitalWrite(Y_LED,HIGH);
+//    digitalWrite(G_LED,LOW);
+    }  
+
+   else{
+    Serial.println("Slow Intenet");
+//    digitalWrite(R_LED,HIGH);
+//    digitalWrite(Y_LED,LOW);
+//    digitalWrite(G_LED,LOW);
+    }  
+  
+   if(response.indexOf("OK") > 0){
+    return 1;
+  }
+    else{
+    return 0;
+  }
+}
   
 }
 
