@@ -1,6 +1,6 @@
 /*
 Wireless Router Monitoring System
-Status: Release V1.0
+Status: Release V1.01
 By: Carlos Alvarado, Eliud Perez
 */
 
@@ -117,11 +117,13 @@ void loop() {
   // set the cursor to column 0, line 0
   lcd.setCursor(0, 0);
   lcd.print("WRMS on Standby");
-  lcd.setCursor(0, 1);
-  lcd.print("                ");
   if(AuthUserSession > millis()){
     lcd.setCursor(0, 1);
     lcd.print("Access Granted");
+  }
+  else{
+    lcd.setCursor(0, 1);
+    lcd.print("                ");
   }
 
   checkUser();
@@ -400,6 +402,6 @@ void lightShow(){                     //LED's begin to turn on and off and the b
 
 /*
 Wireless Router Monitoring System
-Status: Release V1.0
+Status: Release V1.01
 By: Carlos Alvarado, Eliud Perez
 */
