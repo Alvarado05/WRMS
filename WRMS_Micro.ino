@@ -1,59 +1,122 @@
-// Test visual
-// /*
-// Router Monitoring System
-// Status: Alpha
-// By: Carlos Alvarado, Eliud Perez
-// */
+/*
+Wireless Router Monitoring System
+Status: Alpha
+By: Carlos Alvarado, Eliud Perez
+*/
 
-// include the library code:
+//////////////////////////
+////Required Libraries////
+//////////////////////////
+
+//Built-in Arduino libraries
 #include <LiquidCrystal.h>
 #include <SPI.h>
-#include <MFRC522.h>
 #include <EEPROM.h>
+#include <MFRC522.h>
 
-#define RST_PIN   5     // Configurable, see typical pin layout above
-#define SS_PIN    53   // Configurable, see typical pin layout above
+//Custom libraries located in WRMS Repo
+#include <Buzzer.h>
+
+//Constants
+#define RST_PIN   5
+#define SS_PIN    53
+
+////////////////
+////Settings////
+////////////////
+
+//Relay
+int relayPin = 2;
+
+//Buttons
+int button1 = 22;
+int button2 = 23;
+
+//Buzzer
+int buzzerPin = 6; //Pin for the buzzer
+
+//LEDs
+int R_LED = 24;
+int Y_LED = 25;
+int G_LED = 26;
+
+//Variables
+unsigned long AuthUserSession = 0;
+int buttonSt1, buttonSt2;
+
+////////////////////////////
+////Class Instantiations////
+////////////////////////////
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);   // Create MFRC522 instance
 MFRC522::MIFARE_Key key;
-
-// initialize the library with the numbers of the interface pins
 LiquidCrystal lcd(8, 9, 10, 11, 12, 13);
-int buzzer = 6; //Pin for the buzzer
-int button1 = 22;
-int button2 = 23;
-int buttonSt1, buttonSt2;
+Buzzer buzz = Buzzer(buzzerPin);
 
-unsigned long AuthUserSession = 0;
+/////////////
+////Setup////
+/////////////
 
 void setup() {
-  pinMode(2, OUTPUT);
-  // set up the LCD's number of columns and rows:
-  lcd.begin(16, 2);
 
+  ///////////////
+  ///Pin Modes///
+  ///////////////
+
+  //Relay
+  pinMode(relayPin, OUTPUT);
+
+  //Buttons
+  pinMode(button1, INPUT_PULLUP);
+  pinMode(button2, INPUT_PULLUP);
+
+  //LEDs
+  pinMode(R_LED, OUTPUT);
+  pinMode(Y_LED, OUTPUT);
+  pinMode(G_LED, OUTPUT);
+
+
+  ////////////////////
+  ///Pin Initiation///
+  ////////////////////
+
+  //Relay
+  digitalWrite(relayPin, LOW);
+
+  //LEDs
+  digitalWrite(R_LED, LOW);
+  digitalWrite(Y_LED, LOW);
+  digitalWrite(G_LED, LOW);
+
+
+  ////////////
+  ///Begins///
+  ////////////
+
+  //LCD
+  lcd.begin(16, 2);        // set up the LCD's number of columns and rows
+
+  //Serial
   Serial.begin(9600);
   Serial.println("Serial Ready");
   Serial.println();
   Serial1.begin(9600);
   Serial2.begin(115200);
-  digitalWrite(2, LOW);
 
-// Buttons
-  pinMode(button1, INPUT_PULLUP);
-  pinMode(button2, INPUT_PULLUP);
-
-// RFID
+  //RFID
   SPI.begin();         // Init SPI bus
   mfrc522.PCD_Init();  // Init MFRC522 card
-  
-// initialiaze buzzer pin as output
-  pinMode(buzzer,OUTPUT);
 }
+
+
+/////////////////
+////Main Loop////
+/////////////////
 
 void loop() {
   // set the cursor to column 0, line 0
   lcd.setCursor(0, 0);
-  lcd.print("RMS on Standby");
+  lcd.print("WRMS on Standby");
   lcd.setCursor(0, 1);
   lcd.print("                ");
   if(AuthUserSession > millis()){
@@ -64,20 +127,21 @@ void loop() {
   checkUser();
   if(Serial1.available()){
     int input = Serial1.parseInt();
-  
+  //Every function is explained with details in the declaration of it. 
+
     if(input==1){           //If the number 1 is introduced in the Serial Monitor, it will check the internet
       checkInternet();
     }
     else if(input==2){     //If the number 2 is introduced in the Serial Monitor, it will reboot the router
       rebootRouter();
     }
-    else if(input==3){    //If the number 3 is introduced in the Serial Monitor, it will 
+    else if(input==3){    //If the number 3 is introduced in the Serial Monitor, it will show the password on the phone or Serial Monitor.
       showPassSerial();
-    }
-    else if(input==4){
+    } 
+    else if(input==4){    //If the number 4 is introduced in the Serial Monitor, it will give you the latency of your internet.
       checkLatency();
     }
-    else if(input==5){
+    else if(input==5){   //If the number 5 is introduced in the Serial Monitor, it will give you the option to change the password on the phone or Serial Monitor.
       changePass();
     }
     else if(input==4020){
@@ -154,8 +218,13 @@ int checkButtons(){
   }
 }
 
+/////////////////
+////Functions////
+/////////////////
 
-void rebootRouter(){
+
+
+void rebootRouter(){                // Activates the Relay which cut’s the power to the router for 10 seconds.
   lcd.clear();
   lcd.print("Rebooting...");
   Serial.print("Rebooting Router...");
@@ -168,25 +237,18 @@ void rebootRouter(){
   lcd.clear();
 }
 
-void showPassLCD(){
+void showPassLCD(){                     // Illustrates the password of the router in the LCD panel with the LiquidCrystal.h library 
   lcd.clear();
   lcd.print("Wifi Password:");
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1);                  // Specific row in the LCD panel
   lcd.print(readPass());
   delay(5000);
-  lcd.clear();
+  lcd.clear();                          // Clear whatever is in the panel at the moment.
 }
 
-void showPassSerial(){
+void showPassSerial(){                       // Demonstrates the password of the router to your mobile phone or Serial Monitor.
   Serial.println("The Wifi Password is:");
-  Serial.println(readPass());
-}
-
-void buzz(){
-  tone(buzzer, 2000); // Send 1KHz sound signal...
-  delay(400);        // ...for .4 sec
-  noTone(buzzer);     // Stop sound...
-//  delay(1000);        // ...for 1sec
+  Serial.println(readPass());                // Will show us the password that is in stored in the readPass funcion.
 }
 
 void checkUser(){
@@ -200,7 +262,7 @@ void checkUser(){
      mfrc522.uid.uidByte[3] == 181){
   AuthUserSession = millis() + 60000;
   Serial.println("User Authenticated");
-  buzz();
+  buzz.alert();
   }
   mfrc522.PICC_HaltA();
   if ( ! mfrc522.PICC_IsNewCardPresent() || ! mfrc522.PICC_ReadCardSerial() ) {
@@ -209,47 +271,47 @@ void checkUser(){
   return;
 }
 
-String readPass(){
+String readPass(){              // Reads the password of the router from the internal memory of the Aruduino
   String pass;
   char password2[13] = {"0"};     //Reads the password without it the password getting erased. 0 is the address
 
   for(int i=0 ; i<12 ;i++ ){
     password2[i] = EEPROM.read(i);
   }
-  pass = password2;
+  pass = password2;               // Stores the char to a String variable to later return the passoword.
 
   return pass;
 }
 
-void changePass(){
+void changePass(){    //Works with the EEPROM of the Microcontroller to write and store a new password.
   String nPass;
   char password[13]; //Strings of char for the password. thats stores in eeprom
 
   Serial1.print("Enter the new password: ");
-  while(!Serial1.available()){}
+  while(!Serial1.available()){}    // It will enter when there is nothing and when it does it gets out, simple way of waiting in the Serial.
   nPass = Serial1.readString();
-  nPass.toCharArray(password, 13);
+  nPass.toCharArray(password, 13);  //Converts the string to char or copies the String’s characters to the supplied buffer.
 
   for(int i=0 ; i<12 ;i++ ){    
-    EEPROM.write(i,password[i]);
+    EEPROM.write(i,password[i]);    //Loops through all char so that way it can write in the EEPROM.
   }
   
   Serial1.println("");
-  Serial1.print("Password: ");
-  Serial1.println(readPass());
+  Serial1.print("Password: ");     
+  Serial1.println(readPass());     //Will show us the password that is in stored in the readPass funcion.
 }
 
-int connectInternet()
-{
+int connectInternet()                              //Pings google.com to the router and waits if it responds this
+{                                                  // will let us know if there is any internet connection.   
   String response, string_buffer;
   Serial2.println("AT+CIPSTART=\"TCP\",\"google.com\",80");    //connect module to googles server
-  response = Serial2.readString();
+  response = Serial2.readString();                             //Stores the reading of the ESP.
   delay(100);  
-  Serial2.println("AT+CIPCLOSE");   //close connection
-  string_buffer = Serial2.readString();
+  Serial2.println("AT+CIPCLOSE");                             //close connection
+  string_buffer = Serial2.readString();                      //Stores a second response that we don't want to use
   delay(50);
   
-  if(response.indexOf("OK") > 0)
+  if(response.indexOf("OK") > 0)                        //When you read the OK in the Serial you will get a 1 in return.
   {
     return 1;
   }
@@ -259,62 +321,59 @@ int connectInternet()
   }
 }
 
-void checkInternet(){
+void checkInternet(){                       //Checks if the Internet is running or the Internet is down for the moment.
   Serial.print("Checking for Internet...");
   lcd.clear();
   lcd.print("Cheking Wifi...");
-  if(connectInternet() == 1){
-    Serial.println("Internet Up");
+  if(connectInternet() == 1){                 //If the we received a connection from the internet it will say 
+    Serial.println("Internet Up");            // in the serial and in the LCD display the Internet is up.
     lcd.setCursor(0, 1);
     lcd.print("Internet Up");
     delay(2000);
     lcd.clear();
   }
   else{
-    Serial.println("Internet Down");
-      lcd.setCursor(0, 1);
+    Serial.println("Internet Down");         //When the internet is down or not connected it will say
+      lcd.setCursor(0, 1);                   // in the serial and in the LCD display the Internet is down. 
       lcd.print("Internet Down");
       delay(2000);
       lcd.clear();
   }
 }
 
-void checkLatency(){
-  String response;
-//  R_LED = 30;
-//  Y_LED = 31;
-//  G_LED = 32;
+void checkLatency(){                        //Pings google.com to the router and takes the average time that it took to respond.
+  String response;                                 //Variable that reads the Serial of the ESP.
   Serial1.print("Checking Latency...");
-  Serial2.println("AT+PING=\"www.google.com\"");
+  Serial2.println("AT+PING=\"www.google.com\"");  //Gives the command to the ESP to get the ping
   response = Serial2.readString();
   delay(100);
-  int pingPos = response.indexOf("+",3)+1;
+  int pingPos = response.indexOf("+",3)+1;        //After the AT+ it starts searching for the next +.
 
-  int ping = atoi(&response[pingPos]);
+  int ping = atoi(&response[pingPos]);           //Converts an array of characters to an int.
   // Serial1.println(ping);
 
-  if(ping > 0 && ping <= 100){
-    Serial1.println("Good Internet");
-//    digitalWrite(R_LED,LOW);
-//    digitalWrite(Y_LED,LOW);
-//    digitalWrite(G_LED,HIGH);
+  if(ping > 0 && ping <= 100){                  //If your ping is lower than 101 you will get
+    Serial1.println("Good Internet");          // the message of Good Internet.
+   digitalWrite(R_LED,LOW);
+   digitalWrite(Y_LED,LOW);
+   digitalWrite(G_LED,HIGH);               //The Green LED will turn on.
     }
 
-   else if(ping >= 101 && ping <= 200){
-    Serial1.println("Potential Problems");
-//    digitalWrite(R_LED,LOW);
-//    digitalWrite(Y_LED,HIGH);
-//    digitalWrite(G_LED,LOW);
+   else if(ping >= 101 && ping <= 200){       //If your ping is lower than 201 and higher than 101 
+    Serial1.println("Potential Problems");   // you will get the message of potential problems.
+   digitalWrite(R_LED,LOW);
+   digitalWrite(Y_LED,HIGH);             //The Yellow LED will turn on.
+   digitalWrite(G_LED,LOW);
     }  
 
    else{
-    Serial1.println("Slow Intenet");
-//    digitalWrite(R_LED,HIGH);
-//    digitalWrite(Y_LED,LOW);
-//    digitalWrite(G_LED,LOW);
+    Serial1.println("Slow Intenet");      //If your ping is higher than 200 you will get this message.
+   digitalWrite(R_LED,HIGH);           //The Red LED will turn on.
+   digitalWrite(Y_LED,LOW);
+   digitalWrite(G_LED,LOW);
     }  
   
-   if(response.indexOf("OK") > 0){
+   if(response.indexOf("OK") > 0){       //When you read the OK in the Serial you will get a 1 in return.
     return 1;
   }
     else{
@@ -322,6 +381,7 @@ void checkLatency(){
   }
 }
 
-void lightShow(){
-
+void lightShow(){                     //LED's begin to turn on and off and the buzzer sounds of in a fearsome way.
+  Serial1.println("Imperial March Now Playing");
+  buzz.imperialMarch();
 }
