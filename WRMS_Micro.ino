@@ -280,7 +280,46 @@ void checkInternet(){
 }
 
 void checkLatency(){
+  String response;
+//  R_LED = 30;
+//  Y_LED = 31;
+//  G_LED = 32;
+  Serial1.print("Checking Latency...");
+  Serial2.println("AT+PING=\"www.google.com\"");
+  response = Serial2.readString();
+  delay(100);
+  int pingPos = response.indexOf("+",3)+1;
+
+  int ping = atoi(&response[pingPos]);
+  // Serial1.println(ping);
+
+  if(ping > 0 && ping <= 100){
+    Serial1.println("Good Internet");
+//    digitalWrite(R_LED,LOW);
+//    digitalWrite(Y_LED,LOW);
+//    digitalWrite(G_LED,HIGH);
+    }
+
+   else if(ping >= 101 && ping <= 200){
+    Serial1.println("Potential Problems");
+//    digitalWrite(R_LED,LOW);
+//    digitalWrite(Y_LED,HIGH);
+//    digitalWrite(G_LED,LOW);
+    }  
+
+   else{
+    Serial1.println("Slow Intenet");
+//    digitalWrite(R_LED,HIGH);
+//    digitalWrite(Y_LED,LOW);
+//    digitalWrite(G_LED,LOW);
+    }  
   
+   if(response.indexOf("OK") > 0){
+    return 1;
+  }
+    else{
+    return 0;
+  }
 }
 
 void lightShow(){
