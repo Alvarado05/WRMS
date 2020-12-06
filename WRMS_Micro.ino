@@ -1,6 +1,6 @@
 /*
 Wireless Router Monitoring System
-Status: Alpha
+Status: Release V1.0
 By: Carlos Alvarado, Eliud Perez
 */
 
@@ -325,25 +325,31 @@ void checkInternet(){                       //Checks if the Internet is running 
   Serial.print("Checking for Internet...");
   lcd.clear();
   lcd.print("Cheking Wifi...");
+  lcd.setCursor(0, 1);
   if(connectInternet() == 1){                 //If the we received a connection from the internet it will say 
     Serial.println("Internet Up");            // in the serial and in the LCD display the Internet is up.
-    lcd.setCursor(0, 1);
     lcd.print("Internet Up");
+    digitalWrite(G_LED,HIGH);
     delay(2000);
     lcd.clear();
+    digitalWrite(G_LED,LOW);
   }
   else{
-    Serial.println("Internet Down");         //When the internet is down or not connected it will say
-      lcd.setCursor(0, 1);                   // in the serial and in the LCD display the Internet is down. 
-      lcd.print("Internet Down");
+    Serial.println("Internet Down");         //When the internet is down or not connected it will say              
+      lcd.print("Internet Down");           // in the serial and in the LCD display the Internet is down.
+      digitalWrite(R_LED,HIGH);
       delay(2000);
       lcd.clear();
+      digitalWrite(R_LED,LOW);
   }
 }
 
 void checkLatency(){                        //Pings google.com to the router and takes the average time that it took to respond.
   String response;                                 //Variable that reads the Serial of the ESP.
   Serial1.print("Checking Latency...");
+  lcd.clear();
+  lcd.print("Latency Check...");
+  lcd.setCursor(0, 1);
   Serial2.println("AT+PING=\"www.google.com\"");  //Gives the command to the ESP to get the ping
   response = Serial2.readString();
   delay(100);
@@ -354,29 +360,35 @@ void checkLatency(){                        //Pings google.com to the router and
 
   if(ping > 0 && ping <= 100){                  //If your ping is lower than 101 you will get
     Serial1.println("Good Internet");          // the message of Good Internet.
-   digitalWrite(R_LED,LOW);
-   digitalWrite(Y_LED,LOW);
-   digitalWrite(G_LED,HIGH);               //The Green LED will turn on.
-    }
+    lcd.print("Good Internet");
+    digitalWrite(G_LED,HIGH);               //The Green LED will turn on.
+    delay(2000);
+    lcd.clear();
+    digitalWrite(G_LED,LOW);               //The Green LED will turn on.
+  }
 
-   else if(ping >= 101 && ping <= 200){       //If your ping is lower than 201 and higher than 101 
+  else if(ping >= 101 && ping <= 200){       //If your ping is lower than 201 and higher than 101 
     Serial1.println("Potential Problems");   // you will get the message of potential problems.
-   digitalWrite(R_LED,LOW);
-   digitalWrite(Y_LED,HIGH);             //The Yellow LED will turn on.
-   digitalWrite(G_LED,LOW);
-    }  
+    lcd.print("Some Problems");
+    digitalWrite(Y_LED,HIGH);             //The Yellow LED will turn on.
+    delay(2000);
+    lcd.clear();
+    digitalWrite(Y_LED,LOW);               //The Green LED will turn on.
+  }  
 
-   else{
+  else{
     Serial1.println("Slow Intenet");      //If your ping is higher than 200 you will get this message.
-   digitalWrite(R_LED,HIGH);           //The Red LED will turn on.
-   digitalWrite(Y_LED,LOW);
-   digitalWrite(G_LED,LOW);
-    }  
+    lcd.print("Slow Internet");
+    digitalWrite(R_LED,HIGH);           //The Red LED will turn on.
+    delay(2000);
+    lcd.clear();
+    digitalWrite(R_LED,LOW);               //The Green LED will turn on.
+  }  
   
-   if(response.indexOf("OK") > 0){       //When you read the OK in the Serial you will get a 1 in return.
+  if(response.indexOf("OK") > 0){       //When you read the OK in the Serial you will get a 1 in return.
     return 1;
   }
-    else{
+  else{
     return 0;
   }
 }
@@ -385,3 +397,9 @@ void lightShow(){                     //LED's begin to turn on and off and the b
   Serial1.println("Imperial March Now Playing");
   buzz.imperialMarch();
 }
+
+/*
+Wireless Router Monitoring System
+Status: Release V1.0
+By: Carlos Alvarado, Eliud Perez
+*/
