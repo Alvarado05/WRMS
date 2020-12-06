@@ -24,7 +24,6 @@ int button1 = 22;
 int button2 = 23;
 int buttonSt1, buttonSt2;
 
-String wifiPass = "microProject";
 unsigned long AuthUserSession = 0;
 
 void setup() {
@@ -173,14 +172,14 @@ void showPassLCD(){
   lcd.clear();
   lcd.print("Wifi Password:");
   lcd.setCursor(0, 1);
-  lcd.print(wifiPass);
+  lcd.print(readPass());
   delay(5000);
   lcd.clear();
 }
 
 void showPassSerial(){
   Serial.println("The Wifi Password is:");
-  Serial.println(wifiPass);
+  Serial.println(readPass());
 }
 
 void buzz(){
@@ -210,10 +209,21 @@ void checkUser(){
   return;
 }
 
+String readPass(){
+  String pass;
+  char password2[13] = {"0"};     //Reads the password without it the password getting erased. 0 is the address
+
+  for(int i=0 ; i<12 ;i++ ){
+    password2[i] = EEPROM.read(i);
+  }
+  pass = password2;
+
+  return pass;
+}
+
 void changePass(){
   String nPass;
   char password[13]; //Strings of char for the password. thats stores in eeprom
-  char password2[13] = {"0"};     //Reads the password without it the password getting erased. 0 is the address
 
   Serial1.print("Enter the new password: ");
   while(!Serial1.available()){}
@@ -223,15 +233,10 @@ void changePass(){
   for(int i=0 ; i<12 ;i++ ){    
     EEPROM.write(i,password[i]);
   }
-
-  for(int i=0 ; i<12 ;i++ ){
-    password[i] = EEPROM.read(i);
-  }
   
   Serial1.println("");
   Serial1.print("Password: ");
-  Serial1.println(password);
-  
+  Serial1.println(readPass());
 }
 
 int connectInternet()
@@ -276,50 +281,8 @@ void checkInternet(){
 
 void checkLatency(){
   
- String response;
-//  R_LED = 30;
-//  Y_LED = 31;
-//  G_LED = 32;
-  int velocity;
-  Serial2.println("AT+PING=\"www.google.com\"");
-  response = Serial2.readString();
-  delay(100);
-  int pingPos = response.indexOf("+",3)+1;
-
-  int ping = atoi(&response[pingPos]);
-  Serial.println(ping);
-
-  if(ping > 0 && ping <= 100){
-    Serial.println("Good Internet");
-//    digitalWrite(R_LED,LOW);
-//    digitalWrite(Y_LED,LOW);
-//    digitalWrite(G_LED,HIGH);
-    }
-
-   else if(ping >= 101 && ping <= 200){
-    Serial.println("Potential Problems");
-//    digitalWrite(R_LED,LOW);
-//    digitalWrite(Y_LED,HIGH);
-//    digitalWrite(G_LED,LOW);
-    }  
-
-   else{
-    Serial.println("Slow Intenet");
-//    digitalWrite(R_LED,HIGH);
-//    digitalWrite(Y_LED,LOW);
-//    digitalWrite(G_LED,LOW);
-    }  
-  
-   if(response.indexOf("OK") > 0){
-    return 1;
-  }
-    else{
-    return 0;
-  }
-}
-  
 }
 
 void lightShow(){
-  
+
 }
