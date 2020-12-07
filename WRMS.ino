@@ -96,11 +96,15 @@ void setup() {
   //LCD
   lcd.begin(16, 2);        // set up the LCD's number of columns and rows
 
-  //Serial
-  // Serial.begin(9600);
+  //USB Serial
+  // Serial.begin(9600);                  //Debugging Serial via USB
+  // Serial.println("Serial Ready");
+  // Serial.println();
+
+  //Bluetooth Serial
   Serial1.begin(9600);
-  Serial1.println("Serial Ready");
-  Serial1.println();
+
+  //ESP Serial
   Serial2.begin(115200);
 
   //RFID

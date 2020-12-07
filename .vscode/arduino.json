@@ -1,7 +1,7 @@
 {
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
-    "sketch": "WRMS_Micro.ino",
+    "sketch": "WRMS.ino",
     "port": "COM12",
     "programmer": "AVRISP mkII"
 }
