@@ -1,6 +1,6 @@
 /*
 Wireless Router Monitoring System
-Status: Release V1.01
+Status: Release V1.1
 By: Carlos Alvarado, Eliud Perez
 */
 
@@ -97,10 +97,10 @@ void setup() {
   lcd.begin(16, 2);        // set up the LCD's number of columns and rows
 
   //Serial
-  Serial.begin(9600);
-  Serial.println("Serial Ready");
-  Serial.println();
+  // Serial.begin(9600);
   Serial1.begin(9600);
+  Serial1.println("Serial Ready");
+  Serial1.println();
   Serial2.begin(115200);
 
   //RFID
@@ -150,17 +150,17 @@ void loop() {
       lightShow();
     }
   }
-  else if(checkButtons()==1){
-    if(buttonSt1==1 && AuthUserSession > millis()){
+  else if(checkButtons()==1 && AuthUserSession > millis()){
+    if(buttonSt1==1){
       checkInternet();
     }
-    else if(buttonSt1==2 && AuthUserSession > millis()){
+    else if(buttonSt1==2){
       checkLatency();
     }
-    else if(buttonSt2==1 && AuthUserSession > millis()){
+    else if(buttonSt2==1){
       showPassLCD();
     }
-    else if(buttonSt2==2 && AuthUserSession > millis()){
+    else if(buttonSt2==2){
       rebootRouter();
     }
   }
@@ -229,12 +229,12 @@ int checkButtons(){
 void rebootRouter(){                // Activates the Relay which cut’s the power to the router for 10 seconds.
   lcd.clear();
   lcd.print("Rebooting...");
-  Serial.print("Rebooting Router...");
+  Serial1.print("Rebooting Router...");
   digitalWrite(2, HIGH);
   delay(5000);
   digitalWrite(2, LOW);
   lcd.print("Done");
-  Serial.println("Done");
+  Serial1.println("Done");
   delay(2000);
   lcd.clear();
 }
@@ -249,8 +249,8 @@ void showPassLCD(){                     // Illustrates the password of the route
 }
 
 void showPassSerial(){                       // Demonstrates the password of the router to your mobile phone or Serial Monitor.
-  Serial.println("The Wifi Password is:");
-  Serial.println(readPass());                // Will show us the password that is in stored in the readPass funcion.
+  Serial1.println("The Wifi Password is:");
+  Serial1.println(readPass());                // Will show us the password that is in stored in the readPass funcion.
 }
 
 void checkUser(){
@@ -263,7 +263,7 @@ void checkUser(){
      mfrc522.uid.uidByte[2] == 156 &&
      mfrc522.uid.uidByte[3] == 181){
   AuthUserSession = millis() + 60000;
-  Serial.println("User Authenticated");
+  Serial1.println("User Authenticated");
   buzz.alert();
   }
   mfrc522.PICC_HaltA();
@@ -324,12 +324,12 @@ int connectInternet()                              //Pings google.com to the rou
 }
 
 void checkInternet(){                       //Checks if the Internet is running or the Internet is down for the moment.
-  Serial.print("Checking for Internet...");
+  Serial1.print("Checking for Internet...");
   lcd.clear();
   lcd.print("Cheking Wifi...");
   lcd.setCursor(0, 1);
   if(connectInternet() == 1){                 //If the we received a connection from the internet it will say 
-    Serial.println("Internet Up");            // in the serial and in the LCD display the Internet is up.
+    Serial1.println("Internet Up");            // in the serial and in the LCD display the Internet is up.
     lcd.print("Internet Up");
     digitalWrite(G_LED,HIGH);
     delay(2000);
@@ -337,7 +337,7 @@ void checkInternet(){                       //Checks if the Internet is running 
     digitalWrite(G_LED,LOW);
   }
   else{
-    Serial.println("Internet Down");         //When the internet is down or not connected it will say              
+    Serial1.println("Internet Down");         //When the internet is down or not connected it will say              
       lcd.print("Internet Down");           // in the serial and in the LCD display the Internet is down.
       digitalWrite(R_LED,HIGH);
       delay(2000);
@@ -402,6 +402,6 @@ void lightShow(){                     //LED's begin to turn on and off and the b
 
 /*
 Wireless Router Monitoring System
-Status: Release V1.01
+Status: Release V1.1
 By: Carlos Alvarado, Eliud Perez
 */
