@@ -141,14 +141,14 @@ void loop() {
     else if(input==2){     //If the number 2 is introduced in the Serial Monitor, it will reboot the router
       rebootRouter();
     }
-    else if(input==3){    //If the number 3 is introduced in the Serial Monitor, it will show the password on the phone or Serial Monitor.
-      showPassSerial();
+    else if(input==3){    //If the number 3 is introduced in the Serial Monitor,
+      showPassSerial();   //it will show the password on the phone or Serial Monitor.
     } 
-    else if(input==4){    //If the number 4 is introduced in the Serial Monitor, it will give you the latency of your internet.
-      checkLatency();
+    else if(input==4){    //If the number 4 is introduced in the Serial Monitor,
+      checkLatency();     //it will give you the latency of your internet.
     }
-    else if(input==5){   //If the number 5 is introduced in the Serial Monitor, it will give you the option to change the password on the phone or Serial Monitor.
-      changePass();
+    else if(input==5){   //If the number 5 is introduced in the Serial Monitor, 
+      changePass();      //it will give you the option to change the password on the phone or Serial Monitor.
     }
     else if(input==4020){
       lightShow();
@@ -169,6 +169,11 @@ void loop() {
     }
   }
 }
+
+
+/////////////////
+////Functions////
+/////////////////
 
 int checkButtons(){
   unsigned long pressedTime  = 0;
@@ -224,12 +229,6 @@ int checkButtons(){
   }
 }
 
-/////////////////
-////Functions////
-/////////////////
-
-
-
 void rebootRouter(){                // Activates the Relay which cut’s the power to the router for 10 seconds.
   lcd.clear();
   lcd.print("Rebooting...");
@@ -243,8 +242,8 @@ void rebootRouter(){                // Activates the Relay which cut’s the pow
   lcd.clear();
 }
 
-void showPassLCD(){                     // Illustrates the password of the router in the LCD panel with the LiquidCrystal.h library 
-  lcd.clear();
+void showPassLCD(){                     // Illustrates the password of the router in 
+  lcd.clear();                          //the LCD panel with the LiquidCrystal.h library 
   lcd.print("Wifi Password:");
   lcd.setCursor(0, 1);                  // Specific row in the LCD panel
   lcd.print(readPass());
@@ -252,10 +251,10 @@ void showPassLCD(){                     // Illustrates the password of the route
   lcd.clear();                          // Clear whatever is in the panel at the moment.
 }
 
-void showPassSerial(){                       // Demonstrates the password of the router to your mobile phone or Serial Monitor.
-  Serial1.println("The Wifi Password is:");
-  Serial1.println(readPass());                // Will show us the password that is in stored in the readPass funcion.
-}
+void showPassSerial(){                       // Demonstrates the password of the router 
+  Serial1.println("The Wifi Password is:");  //to your mobile phone or Serial Monitor.
+  Serial1.println(readPass());               // Will show us the password that is 
+}                                            //in stored in the readPass funcion.
 
 void checkUser(){
   if ( ! mfrc522.PICC_IsNewCardPresent() || ! mfrc522.PICC_ReadCardSerial() ) {
